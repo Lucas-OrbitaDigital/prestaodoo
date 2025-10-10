@@ -1,33 +1,22 @@
 <?php
 
+$config = require __DIR__ . '/config.php';
 require_once __DIR__ . '/lib/ripcord.php';
+require_once __DIR__ . '/src/controllers/ProductController.php';
+require_once __DIR__ . '/src/services/OdooService.php';
 
-$url = "https://x@odoo.com";
-$db = "odoo_db";
-$username = "admin";
-$password = "password";
-
-$common = ripcord::client("$url/xmlrpc/2/common");
-
-$uid = $common->authenticate($db, $username, $password, []);
-
-if (!$uid) {
-    echo "Autentication failed";
+try {
+    $odoo = new ProductService($config['odoo']);
+    $controller = new ProductController($odoo);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => $e->getMessage()]);
+    exit;
 }
 
-$models = ripcord::client("$url/xmlrpc/2/object");
-$atmossProducts = $models->execute_kw(
-    $db,
-    $uid,
-    $password,
-    'product.product',
-    'search_read',
-    [
-        [
-            ['name', 'ilike', 'atmoss']
-        ]
-    ],
-    [
-        'fields' => ['id', 'name', 'price']
-    ]
-);
+foreach (glob(__DIR__ . '/src/routes/*.php') as $routeFile) {
+    require $routeFile;
+}
+
+http_response_code(404);
+echo json_encode(['error' => 'Endpoint not found']);
