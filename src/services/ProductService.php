@@ -46,7 +46,7 @@ class ProductService
             $this->db,
             $this->uid,
             $this->password,
-            'product.product',
+            'product.template',
             'search_read',
             [
                 [['name', 'ilike', $nameFilter]]
