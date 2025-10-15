@@ -61,7 +61,7 @@ class Service
                 "{$table}.product",
                 'search_read',
                 [
-                    [['name', 'ilike', $nameFilter]]
+                    [['default_code', 'ilike', $nameFilter]]
                 ],
                 ['fields' => $fields]
             );
