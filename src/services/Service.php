@@ -58,7 +58,7 @@ class Service
                 $this->db,
                 $this->uid,
                 $this->password,
-                "{$table}.template",
+                "{$table}.product",
                 'search_read',
                 [
                     [['name', 'ilike', $nameFilter]]
