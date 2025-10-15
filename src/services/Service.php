@@ -31,7 +31,6 @@ class Service
         $this->models = Ripcord::client("{$this->url}/xmlrpc/2/object");
     }
 
-
     /**
      * Get data from Odoo by name filter.
      *
