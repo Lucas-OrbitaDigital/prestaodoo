@@ -4,25 +4,11 @@ require_once __DIR__ . '/../services/ProductService.php';
 
 class ProductController
 {
-    private $odoo;
+    private $service;
 
-    public function __construct(ProductService $odoo)
+    public function __construct(Service $service)
     {
-        $this->odoo = $odoo;
-    }
-
-    /**
-     * Send a JSON response with HTTP status code.
-     *
-     * @param mixed $data
-     * @param int $status
-     * @return void
-     */
-    private function jsonResponse($data, int $status = 200): void
-    {
-        http_response_code($status);
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        $this->service = $service;
     }
 
     /**
@@ -32,7 +18,7 @@ class ProductController
      */
     public function list(): void
     {
-        $products = $this->odoo->getProductsByName('atmoss', ['id', 'name', 'list_price']);
-        $this->jsonResponse($products);
+        $products = $this->service->getDataByName('atmoss', ['id', 'name', 'list_price']);
+        jsonResponse($products);
     }
 }

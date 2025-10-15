@@ -1,0 +1,45 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "1e0952a3d6172377f7813682c5a5b5d5",
+    "packages": [
+        {
+            "name": "eteamsys/ripcord",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/eTeamsys/ripcord.git",
+                "reference": "1a9acd5664bf06ae5fb0531cafa45c119a60e9c9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/eTeamsys/ripcord/zipball/1a9acd5664bf06ae5fb0531cafa45c119a60e9c9",
+                "reference": "1a9acd5664bf06ae5fb0531cafa45c119a60e9c9",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Copy of https://github.com/poef/ripcord",
+            "support": {
+                "issues": "https://github.com/eTeamsys/ripcord/issues",
+                "source": "https://github.com/eTeamsys/ripcord/tree/master"
+            },
+            "time": "2020-02-27T14:15:10+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.3.0"
+}
