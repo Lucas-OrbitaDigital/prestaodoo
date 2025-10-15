@@ -35,22 +35,49 @@ class Service
     /**
      * Get data from Odoo by name filter.
      *
+     * @param string $table
      * @param string $nameFilter
      * @param array $fields
      * @return array
      */
-    public function getDataByName(string $nameFilter, array $fields): array
+    public function getDataByName(string $table, string $nameFilter, array $fields): array
     {
-        return $this->models->execute_kw(
-            $this->db,
-            $this->uid,
-            $this->password,
-            'product.template',
-            'search_read',
-            [
-                [['name', 'ilike', $nameFilter]]
-            ],
-            ['fields' => $fields]
-        );
+        try {
+            if (empty($table)) {
+                throw new InvalidArgumentException('Table name cannot be empty.');
+            }
+
+            if (empty($nameFilter)) {
+                throw new InvalidArgumentException('Name filter cannot be empty.');
+            }
+
+            if (empty($fields)) {
+                throw new InvalidArgumentException('Fields array cannot be empty.');
+            }
+
+            $result = $this->models->execute_kw(
+                $this->db,
+                $this->uid,
+                $this->password,
+                "{$table}.template",
+                'search_read',
+                [
+                    [['name', 'ilike', $nameFilter]]
+                ],
+                ['fields' => $fields]
+            );
+
+            if (!is_array($result)) {
+                throw new RuntimeException("Unexpected response type from Odoo for table '{$table}'.");
+            }
+
+            return $result;
+
+        } catch (Throwable $e) {
+            return [
+                'error' => true,
+                'message' => $e->getMessage(),
+            ];
+        }
     }
 }

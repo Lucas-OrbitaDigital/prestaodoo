@@ -16,9 +16,14 @@ class ProductController
      *
      * @return void
      */
-    public function list(): void
+    public function getAllByName(): void
     {
-        $products = $this->service->getDataByName('atmoss', ['id', 'name', 'list_price']);
+        $products = $this->service->getDataByName('product', 'atmoss', ['id', 'name', 'list_price']);
+
+        if (!empty($products['error'])) {
+            jsonResponse(['error' => 'Odoo query failed', 'details' => $products['message']], 500);
+        }
+
         jsonResponse($products);
     }
 }
