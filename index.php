@@ -1,13 +1,14 @@
 <?php
 
 $config = require __DIR__ . '/config.php';
-require_once __DIR__ . '/lib/ripcord.php';
+require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/src/controllers/ProductController.php';
 require_once __DIR__ . '/src/services/OdooService.php';
+require_once __DIR__ . '/src/common.php';
 
 try {
-    $odoo = new ProductService($config['odoo']);
-    $controller = new ProductController($odoo);
+    $service = new Service($config['odoo']);
+    $controller = new ProductController($service);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()]);

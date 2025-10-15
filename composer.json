@@ -1,0 +1,5 @@
+{
+    "require": {
+        "eteamsys/ripcord": "^1.0"
+    }
+}

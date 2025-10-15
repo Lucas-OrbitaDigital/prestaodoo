@@ -1,8 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../lib/ripcord.php';
-
-class ProductService
+class Service
 {
     private $url;
     private $db;
@@ -23,24 +21,25 @@ class ProductService
 
     private function init(): void
     {
-        $common = ripcord::client("{$this->url}/xmlrpc/2/common");
+        $common = Ripcord::client("{$this->url}/xmlrpc/2/common");
         $this->uid = $common->authenticate($this->db, $this->username, $this->password, []);
 
         if (!$this->uid) {
             throw new Exception('Odoo authentication failed');
         }
 
-        $this->models = ripcord::client("{$this->url}/xmlrpc/2/object");
+        $this->models = Ripcord::client("{$this->url}/xmlrpc/2/object");
     }
 
+
     /**
-     * Get products from Odoo by name filter.
+     * Get data from Odoo by name filter.
      *
      * @param string $nameFilter
      * @param array $fields
      * @return array
      */
-    public function getProductsByName(string $nameFilter, array $fields = ['id', 'name', 'list_price']): array
+    public function getDataByName(string $nameFilter, array $fields): array
     {
         return $this->models->execute_kw(
             $this->db,
