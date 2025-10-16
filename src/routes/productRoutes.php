@@ -4,6 +4,6 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($uri === '/products' && $method === 'GET') {
-    $controller->getAllByName('product', 'atmoss', ['id', 'default_code', 'qty_available']);
+    $controller->getAllByName('product.product', 'atmoss', ['id', 'default_code', 'qty_available']);
     exit;
 }

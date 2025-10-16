@@ -2,80 +2,116 @@
 
 class Service
 {
-    private $url;
-    private $db;
-    private $username;
-    private $password;
-    private $uid;
-    private $models;
+    private string $url;
+    private string $db;
+    private string $username;
+    private string $password;
+    private int $uid;
 
     public function __construct(array $config)
     {
-        $this->url = $config['url'];
+        $this->url = rtrim($config['url'], '/');
         $this->db = $config['db'];
         $this->username = $config['username'];
         $this->password = $config['password'];
 
-        $this->init();
-    }
-
-    private function init(): void
-    {
-        $common = Ripcord::client("{$this->url}/xmlrpc/2/common");
-        $this->uid = $common->authenticate($this->db, $this->username, $this->password, []);
-
-        if (!$this->uid) {
-            throw new Exception('Odoo authentication failed');
-        }
-
-        $this->models = Ripcord::client("{$this->url}/xmlrpc/2/object");
+        $this->authenticate();
     }
 
     /**
-     * Get data from Odoo by name filter.
+     * Authenticate against Odoo using JSON-RPC.
+     */
+    private function authenticate(): void
+    {
+        $response = $this->jsonRpcCall(
+            "{$this->url}/jsonrpc",
+            'call',
+            [
+                'service' => 'common',
+                'method'  => 'login',
+                'args'    => [$this->db, $this->username, $this->password]
+            ]
+        );
+
+        if (empty($response['result'])) {
+            throw new Exception('Odoo authentication failed.');
+        }
+
+        $this->uid = $response['result'];
+    }
+
+    /**
+     * Get data from Odoo by name filter using JSON-RPC.
      *
-     * @param string $table
+     * @param string $model
      * @param string $nameFilter
      * @param array $fields
+     * 
      * @return array
      */
-    public function getDataByName(string $table, string $nameFilter, array $fields): array
+    public function getDataByName(string $model, string $nameFilter, array $fields): array
     {
         try {
-            if (empty($model)) {
-                return ['error' => true, 'message' => 'Model name cannot be empty.'];
+            $response = $this->jsonRpcCall("{$this->url}/jsonrpc", 'call', [
+                'service' => 'object',
+                'method'  => 'execute_kw',
+                'args'    => [$this->db, $this->uid, $this->password, $model, 'search_read', [[['name', 'ilike', $nameFilter]]], ['fields' => $fields]]
+            ]);
+
+            if (isset($response['error'])) {
+                return [
+                    'error' => true,
+                    'message' => $response['error']['data']['message'] ?? 'Unknown Odoo error'
+                ];
             }
 
-            if (empty($nameFilter)) {
-                return ['error' => true, 'message' => 'Name filter cannot be empty.'];
-            }
+            return $response['result'] ?? [];
 
-            if (empty($fields)) {
-                return ['error' => true, 'message' => 'Fields array cannot be empty.'];
-            }
-
-            $result = $this->models->execute_kw(
-                $this->db,
-                $this->uid,
-                $this->password,
-                "{$table}.product",
-                'search_read',
-                [
-                    [['default_code', 'ilike', $nameFilter]]
-                ],
-                ['fields' => $fields]
-            );
-
-            if (!is_array($result)) {
-                return ['error' => true, 'message' => "Unexpected response type from Odoo for model '{$model}'."];
-            }
-
-            return $result;
         } catch (Throwable $e) {
             return [
                 'error' => true,
-                'message' => 'Odoo query failed' . $e->getMessage(),
+                'message' => 'Odoo query failed: ' . $e->getMessage(),
             ];
         }
+    }
+
+    /**
+     * Perform a JSON-RPC call to Odoo.
+     *
+     * @param string $url
+     * @param string $method
+     * @param array $params
+     * 
+     * @return array
+     */
+    private function jsonRpcCall(string $url, string $method, array $params): array
+    {
+        $payload = [
+            'jsonrpc' => '2.0',
+            'method'  => $method,
+            'params'  => $params,
+            'id'      => uniqid(),
+        ];
+
+        $options = [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_TIMEOUT => 60,
+        ];
+
+        $ch = curl_init();
+        curl_setopt_array($ch, $options);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        $response = curl_exec($ch);
+
+        if ($response === false) {
+            throw new Exception('cURL error: ' . curl_error($ch));
+        }
+
+        curl_close($ch);
+        return json_decode($response, true);
     }
 }

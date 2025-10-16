@@ -6,7 +6,7 @@ ini_set("display_startup_errors", 1);
 $config = require __DIR__ . '/config.php';
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/src/controllers/ProductController.php';
-require_once __DIR__ . '/src/services/OdooService.php';
+require_once __DIR__ . '/src/services/Service.php';
 require_once __DIR__ . '/src/common.php';
 
 try {
