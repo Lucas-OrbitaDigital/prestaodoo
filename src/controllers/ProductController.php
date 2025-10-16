@@ -13,12 +13,14 @@ class ProductController
 
     /**
      * List all products matching a filter ('atmoss') and return as JSON.
-     *
-     * @return void
+     * @param string $model
+     * @param string $nameFilter
+     * @param array $fields
+     * 
      */
-    public function getAllByName(): void
+    public function getAllByName(string $model, string $nameFilter, array $fields): void
     {
-        $products = $this->service->getDataByName('product', 'atmoss', ['id', 'default_code', 'qty_available']);
+        $products = $this->service->getDataByName($model, $nameFilter, $fields);
 
         if (!empty($products['error'])) {
             jsonResponse(['error' => 'Odoo query failed', 'details' => $products['message']], 500);

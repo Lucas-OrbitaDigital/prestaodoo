@@ -42,16 +42,16 @@ class Service
     public function getDataByName(string $table, string $nameFilter, array $fields): array
     {
         try {
-            if (empty($table)) {
-                throw new InvalidArgumentException('Table name cannot be empty.');
+            if (empty($model)) {
+                return ['error' => true, 'message' => 'Model name cannot be empty.'];
             }
 
             if (empty($nameFilter)) {
-                throw new InvalidArgumentException('Name filter cannot be empty.');
+                return ['error' => true, 'message' => 'Name filter cannot be empty.'];
             }
 
             if (empty($fields)) {
-                throw new InvalidArgumentException('Fields array cannot be empty.');
+                return ['error' => true, 'message' => 'Fields array cannot be empty.'];
             }
 
             $result = $this->models->execute_kw(
@@ -67,15 +67,14 @@ class Service
             );
 
             if (!is_array($result)) {
-                throw new RuntimeException("Unexpected response type from Odoo for table '{$table}'.");
+                return ['error' => true, 'message' => "Unexpected response type from Odoo for model '{$model}'."];
             }
 
             return $result;
-
         } catch (Throwable $e) {
             return [
                 'error' => true,
-                'message' => $e->getMessage(),
+                'message' => 'Odoo query failed' . $e->getMessage(),
             ];
         }
     }
